@@ -19,9 +19,11 @@
 
   let isLicensed = $state(false);
   let isCheckingLicense = $state(true);
+  let isChangingLicense = $state(false);
   let serialInput = $state('');
   let licenseError = $state('');
   let machineUid = $state('');
+  let activeSerialKey = $state('');
 
   let isOSClickThrough = $derived(
     isLicensed &&
@@ -49,6 +51,7 @@
       const store = await load('store.json', { autoSave: false });
       const token = await store.get<{serial: string}>('license_token');
       if (token && token.serial) {
+        activeSerialKey = token.serial;
         isLicensed = true;
       }
     } catch (e) {
@@ -71,7 +74,9 @@
         const store = await load('store.json', { autoSave: false });
         await store.set('license_token', { serial: serialInput.trim() });
         await store.save();
+        activeSerialKey = serialInput.trim();
         isLicensed = true;
+        isChangingLicense = false;
         licenseError = '';
       } else {
         licenseError = response.message;
@@ -159,17 +164,20 @@
 
 <main class="overlay-container" role="presentation" oncontextmenu={(e) => e.preventDefault()} onmousedown={handleOverlayClick}>
   
-  {#if !isCheckingLicense && !isLicensed}
+  {#if !isCheckingLicense && (!isLicensed || isChangingLicense)}
     <div class="license-lock-screen">
       <div class="license-modal">
+        {#if isChangingLicense}
+          <button class="modal-close-btn" aria-label="닫기" onclick={() => { isChangingLicense = false; licenseError = ''; }}>&times;</button>
+        {/if}
         <Lock size={48} color="#2563eb" strokeWidth={1.5} />
-        <h2>T-Point 라이선스 인증</h2>
+        <h2>T-Point 라이선스 {isChangingLicense ? '변경' : '인증'}</h2>
         <p>프로그램을 사용하려면 시리얼 키를 입력해 주세요.<br/><small>기기 ID: {machineUid}</small></p>
         <input type="text" bind:value={serialInput} placeholder="시리얼 키 입력 (예: EDU-2026-ABC)" onkeydown={(e) => e.key === 'Enter' && handleLicenseSubmit()} />
         {#if licenseError}
           <div class="error-msg">{licenseError}</div>
         {/if}
-        <button onclick={handleLicenseSubmit} disabled={licenseError === '인증 서버와 통신 중...'}>인증하기</button>
+        <button class="submit-btn" onclick={handleLicenseSubmit} disabled={licenseError === '인증 서버와 통신 중...'}>인증하기</button>
       </div>
     </div>
   {/if}
@@ -398,6 +406,14 @@
             </select>
           </div>
 
+          <div class="sidebar-setting license-setting">
+            <span class="set-label">라이선스 관리</span>
+            <div class="license-info-box">
+              <span class="current-key">{activeSerialKey || '인증 없음'}</span>
+              <button class="change-license-btn" onclick={() => { serialInput = ''; licenseError = ''; isChangingLicense = true; }}>변경</button>
+            </div>
+          </div>
+
           <div class="sidebar-footer">
             ⓒ 송성근(쏭쌤) X 서명훈 All Rights Reserved. (2026.06.01)<br/>
             자유로운 교육용 배포를 허용합니다. 단, 무단 복제 및 수정 후 재배포는 법적으로 금지됩니다.
@@ -479,6 +495,7 @@
   }
 
   .license-modal {
+    position: relative;
     background: white;
     padding: 40px;
     border-radius: 16px;
@@ -486,6 +503,24 @@
     text-align: center;
     width: 420px;
     border: 1px solid #e5e7eb;
+  }
+
+  .modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #9ca3af;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .modal-close-btn:hover {
+    background: #f3f4f6;
+    color: #ef4444;
   }
 
   .license-modal h2 {
@@ -708,6 +743,46 @@
     background: white;
     cursor: pointer;
     color: #1f2937;
+  }
+  
+  .license-setting {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+  }
+  
+  .license-info-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 4px 6px;
+    gap: 6px;
+  }
+  
+  .current-key {
+    font-size: 11px;
+    color: #111827;
+    font-family: monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+  }
+  
+  .change-license-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+    background: #f3f4f6;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #374151;
+  }
+  .change-license-btn:hover {
+    background: #e5e7eb;
   }
 
   .sidebar-footer {
