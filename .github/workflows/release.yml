@@ -60,10 +60,3 @@ jobs:
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           args: --target x86_64-pc-windows-msvc
-
-      - name: Upload latest.json for Auto Updater
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo '${{ steps.tauri_action.outputs.updaterJson }}' > latest.json
-          gh release upload ${{ github.ref_name }} latest.json --clobber
