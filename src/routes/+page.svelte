@@ -14,6 +14,8 @@
   import type { ToolType } from '$lib/ToolManager.svelte';
   import { audioEngine } from '$lib/AudioEngine.ts';
   import { load } from '@tauri-apps/plugin-store';
+  import { getVersion } from '@tauri-apps/api/app';
+  import { check } from '@tauri-apps/plugin-updater';
 
   let canvasLayerRef: ReturnType<typeof CanvasLayer>;
 
@@ -24,6 +26,7 @@
   let licenseError = $state('');
   let machineUid = $state('');
   let activeSerialKey = $state('');
+  let appVersion = $state('');
 
   let isOSClickThrough = $derived(
     isLicensed &&
@@ -48,6 +51,22 @@
 
   onMount(async () => {
     try {
+      appVersion = await getVersion();
+      
+      // 자동 업데이트 백그라운드 체크 로직
+      setTimeout(async () => {
+        try {
+          const update = await check();
+          if (update && confirm(`새로운 업데이트(v${update.version})가 있습니다. 지금 설치하시겠습니까?`)) {
+            await update.downloadAndInstall();
+            alert('업데이트가 완료되었습니다. 앱이 종료됩니다. 다시 실행해 주세요.');
+            invoke('force_exit');
+          }
+        } catch (err) {
+          console.error('업데이트 체크 실패:', err);
+        }
+      }, 3000); // 앱 구동 3초 후 체크하여 초기 구동 속도 지연 방지
+
       machineUid = await invoke<string>('get_machine_uid');
       const store = await load('store.json', { autoSave: false });
       const token = await store.get<{serial: string}>('license_token');
@@ -420,6 +439,7 @@
           </div>
 
           <div class="sidebar-footer">
+            <div class="version-info" style="font-weight: 600; color: #3b82f6; margin-bottom: 6px;">현재 버전: v{appVersion}</div>
             ⓒ 송성근(쏭쌤) X 서명훈 All Rights Reserved. (2026.06.01)<br/>
             자유로운 교육용 배포를 허용합니다. 단, 무단 복제 및 수정 후 재배포는 법적으로 금지됩니다.
           </div>

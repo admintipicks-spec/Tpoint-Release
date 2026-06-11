@@ -46,6 +46,7 @@ jobs:
 
       - name: Build and Release Tauri App
         uses: tauri-apps/tauri-action@v0
+        id: tauri_action
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -54,8 +55,15 @@ jobs:
           tagName: ${{ github.ref_name }}
           releaseName: 'T-Point ${{ github.ref_name }}'
           releaseBody: 'See the assets to download this version and install.'
-          releaseDraft: true
+          releaseDraft: false
           prerelease: false
           owner: ${{ github.repository_owner }}
           repo: ${{ github.event.repository.name }}
           args: --target x86_64-pc-windows-msvc
+
+      - name: Upload latest.json for Auto Updater
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo '${{ steps.tauri_action.outputs.updaterJson }}' > latest.json
+          gh release upload ${{ github.ref_name }} latest.json --clobber
