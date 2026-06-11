@@ -1,0 +1,20 @@
+/* app.css */
+html, body, #app, #svelte, div[style="display: contents"] {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  background: transparent !important;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body > div {
+  width: 100%;
+  height: 100%;
+  background: transparent !important;
+}
+
+* {
+  box-sizing: border-box;
+}
