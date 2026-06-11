@@ -19,8 +19,8 @@
 
   let canvasLayerRef: ReturnType<typeof CanvasLayer>;
 
-  let isLicensed = $state(false);
-  let isCheckingLicense = $state(true);
+  let isLicensed = $state(true); // [FREE PASS] 인증 무효화 및 프리패스 강제 활성화
+  let isCheckingLicense = $state(false);
   let isChangingLicense = $state(false);
   let serialInput = $state('');
   let licenseError = $state('');
@@ -435,13 +435,15 @@
             </select>
           </div>
 
+          <!-- [FREE PASS] 라이선스 관리 영역 임시 비활성화 (무료 배포 기간)
           <div class="sidebar-setting license-setting">
             <span class="set-label">라이선스 관리</span>
             <div class="license-info-box">
-              <span class="current-key">{activeSerialKey || '인증 없음'}</span>
+              <span class="current-key">{activeSerialKey || '프리패스 (인증 불필요)'}</span>
               <button class="change-license-btn" onclick={() => { serialInput = ''; licenseError = ''; isChangingLicense = true; }}>변경</button>
             </div>
           </div>
+          -->
 
           <div class="sidebar-footer">
             <div class="version-info" style="font-weight: 600; color: #3b82f6; margin-bottom: 6px;">현재 버전: v{appVersion}</div>
