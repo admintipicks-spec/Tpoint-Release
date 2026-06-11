@@ -27,6 +27,7 @@
 
   let isOSClickThrough = $derived(
     isLicensed &&
+    !isChangingLicense &&
     toolManager.activeTool === 'pointer' && 
     !toolManager.isTextInputActive && 
     !toolManager.activeSettingsPanel &&
@@ -62,7 +63,11 @@
   });
 
   async function handleLicenseSubmit() {
-    if (!serialInput.trim()) return;
+    console.log('verify_license 호출 시도:', serialInput.trim());
+    if (!serialInput.trim()) {
+      licenseError = '시리얼 키를 입력해 주세요.';
+      return;
+    }
     licenseError = '인증 서버와 통신 중...';
     
     try {
@@ -166,7 +171,7 @@
   
   {#if !isCheckingLicense && (!isLicensed || isChangingLicense)}
     <div class="license-lock-screen">
-      <div class="license-modal">
+      <div class="license-modal" onmousedown={(e) => e.stopPropagation()}>
         {#if isChangingLicense}
           <button class="modal-close-btn" aria-label="닫기" onclick={() => { isChangingLicense = false; licenseError = ''; }}>&times;</button>
         {/if}
