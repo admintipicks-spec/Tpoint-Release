@@ -149,7 +149,7 @@
   async function enableMagnifier() {
     if (magnifierGroup) return; // 이미 활성화됨
     try {
-      const base64Str = await invoke<string>('capture_screen');
+      const base64Str = await invoke<string>('capture_screen', { x: Math.floor(window.screenX), y: Math.floor(window.screenY) });
       magnifierImgObj = new Image();
       magnifierImgObj.src = base64Str;
       magnifierImgObj.onload = () => {
@@ -555,7 +555,7 @@
       
       // 너무 작은 영역 캡처 방지
       if (w > 10 && h > 10) {
-        invoke<string>('capture_screen_region', { x: Math.floor(x), y: Math.floor(y), width: Math.floor(w), height: Math.floor(h) })
+        invoke<string>('capture_screen_region', { x: Math.floor(window.screenX + x), y: Math.floor(window.screenY + y), width: Math.floor(w), height: Math.floor(h) })
           .then(base64 => {
             createCaptureWidget(base64, x, y, w, h);
           })

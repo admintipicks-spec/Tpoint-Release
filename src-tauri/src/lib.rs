@@ -21,9 +21,9 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn capture_screen() -> Result<String, String> {
-    let screens = Screen::all().map_err(|e| e.to_string())?;
-    if let Some(screen) = screens.first() {
+async fn capture_screen(x: i32, y: i32) -> Result<String, String> {
+    let screen = Screen::from_point(x, y).map_err(|e| e.to_string())?;
+    {
         let image_buffer = screen.capture().map_err(|e| e.to_string())?;
 
         let mut bytes: Vec<u8> = Vec::new();
@@ -40,8 +40,6 @@ async fn capture_screen() -> Result<String, String> {
 
         let b64 = general_purpose::STANDARD.encode(&bytes);
         Ok(format!("data:image/png;base64,{}", b64))
-    } else {
-        Err("모니터를 찾을 수 없습니다.".into())
     }
 }
 
@@ -52,8 +50,10 @@ async fn capture_screen_region(x: i32, y: i32, width: u32, height: u32) -> Resul
 
     // 메모리상에서 하드디스크 I/O 없이 지정된 영역만 Crop
     // (주의: 모니터별 로컬 좌표계 보정이 필요할 수 있으나, 전체화면 윈도우라 가정)
+    let local_x = x - screen.display_info.x;
+    let local_y = y - screen.display_info.y;
     let image_buffer = screen
-        .capture_area(x, y, width, height)
+        .capture_area(local_x, local_y, width, height)
         .map_err(|e| e.to_string())?;
 
     let mut bytes: Vec<u8> = Vec::new();

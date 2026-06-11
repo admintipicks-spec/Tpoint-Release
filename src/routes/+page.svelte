@@ -445,7 +445,8 @@
 
           <div class="sidebar-footer">
             <div class="version-info" style="font-weight: 600; color: #3b82f6; margin-bottom: 6px;">현재 버전: v{appVersion}</div>
-            ⓒ 송성근(쏭쌤) X 서명훈 All Rights Reserved. (2026.06.01)<br/>
+            ⓒ 송성근(쏭쌤) X 서명훈<br/>
+            All Rights Reserved. (2026.06.01)<br/>
             자유로운 교육용 배포를 허용합니다. 단, 무단 복제 및 수정 후 재배포는 법적으로 금지됩니다.
           </div>
         </div>
@@ -686,7 +687,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     width: 760px;
-    height: 480px;
+    height: 540px;
     background: white;
     border: 1px solid #e5e7eb;
     border-radius: 12px;
@@ -735,6 +736,7 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+    overflow-y: auto;
   }
   
   .sidebar-item {
