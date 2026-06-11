@@ -26,7 +26,7 @@
   let licenseError = $state('');
   let machineUid = $state('');
   let activeSerialKey = $state('');
-  let appVersion = $state('');
+  let appVersion = $state('로딩 중...');
 
   let isOSClickThrough = $derived(
     isLicensed &&
@@ -51,7 +51,12 @@
 
   onMount(async () => {
     try {
-      appVersion = await getVersion();
+      try {
+        appVersion = await getVersion();
+      } catch (e) {
+        console.error('버전 가져오기 실패:', e);
+        appVersion = '알 수 없음';
+      }
       
       // 자동 업데이트 백그라운드 체크 로직
       setTimeout(async () => {
